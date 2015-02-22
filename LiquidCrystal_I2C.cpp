@@ -1,6 +1,24 @@
-// LiquidCrystal_I2C V2.0 - Mario H. atmega@xs4all.nl
-// Mods for Chinese I2C converter board - Murray R. Van Luyn. vanluynm@iinet.net.au
+/*
+  NAME:
+  LiquidCrystal_I2C
 
+  DESCRIPTION:
+  Library for parallel HD44780 compatible LCDs interfaced via a Chinese
+  PCF8574 I2C serial extender.
+
+  LICENSE:
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the MIT License (MIT).
+  
+  CREDITS:
+  Mario H. atmega@xs4all.nl - LiquidCrystal_I2C V2.0
+  Murray R. Van Luyn. vanluynm@iinet.net.au - Mods for Chinese I2C converter board
+    
+  CREDENTIALS:
+  Author: Libor Gabaj
+  Version: 2.1.0
+  Updated: 22.02.2015
+ */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
 #include "Wire.h"
@@ -112,6 +130,20 @@ void LiquidCrystal_I2C::clear(){
 	command(LCD_CLEARDISPLAY);// clear display, set cursor position to zero
 	delayMicroseconds(2000);  // this command takes a long time!
 }
+
+void LiquidCrystal_I2C::clear(uint8_t rowStart, uint8_t colStart, uint8_t colCnt)
+{
+  // Maintain input parameters
+  rowStart = max(min(rowStart, _rows - 1), 0);
+  colStart = max(min(colStart, _cols - 1), 0);
+  colCnt   = max(min(colCnt, _cols - colStart), 0);
+  // Clear segment
+  if (colCnt > 0) {
+    setCursor(colStart, rowStart);
+    for (uint8_t i = 0; i < colCnt; i++) write(0x20);
+  }
+}
+
 
 void LiquidCrystal_I2C::home(){
 	command(LCD_RETURNHOME);  // set cursor position to zero

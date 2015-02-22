@@ -1,6 +1,24 @@
-// LiquidCrystal_I2C V2.0 - Mario H. atmega@xs4all.nl
-// Mods for Chinese I2C converter board - Murray R. Van Luyn. vanluynm@iinet.net.au
+/*
+  NAME:
+  LiquidCrystal_I2C
 
+  DESCRIPTION:
+  Library for parallel HD44780 compatible LCDs interfaced via a Chinese
+  PCF8574 I2C serial extender.
+
+  LICENSE:
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the MIT License (MIT).
+  
+  CREDITS:
+  Mario H. atmega@xs4all.nl - LiquidCrystal_I2C V2.0
+  Murray R. Van Luyn. vanluynm@iinet.net.au - Mods for Chinese I2C converter board
+    
+  CREDENTIALS:
+  Author: Libor Gabaj
+  Version: 2.1.0
+  Updated: 22.02.2015
+ */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
 
@@ -59,6 +77,24 @@ public:
   LiquidCrystal_I2C(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows);
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS );
   void clear();
+
+  /*
+  Clear particular segment of a row.
+  DESCRIPTION:  Overloaded original function clear(). Thanks to defaulted
+                parameters, for clearing the entire row use just
+                clear(rowStart).
+  PARAMETERS:
+  rowStart  - row number to be cleared counting from 0.
+              Limited to the last row.
+  colStart  - column number of the cleared segment counting from 0.
+              Defaulted to the very beginnig of the row.
+              Limited to the last character.
+  colCnt    - number of cleared characters.
+              Defaulted to 255.
+              Limited to remaining characters on the row.
+  RETURN:	void
+*/
+  void clear(uint8_t rowStart, uint8_t colStart = 0, uint8_t colCnt = 255);
   void home();
   void noDisplay();
   void display();
