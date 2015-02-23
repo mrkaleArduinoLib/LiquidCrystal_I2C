@@ -42,6 +42,8 @@ cursor_off	KEYWORD2
 setBacklight	KEYWORD2
 load_custom_character	KEYWORD2
 printstr	KEYWORD2
+init_bargraph	KEYWORD2
+draw_horizontal_graph	KEYWORD2
 ###########################################
 # Constants (LITERAL1)
 ###########################################

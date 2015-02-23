@@ -131,12 +131,12 @@ void LiquidCrystal_I2C::clear(){
 	delayMicroseconds(2000);  // this command takes a long time!
 }
 
-void LiquidCrystal_I2C::clear(uint8_t rowStart, uint8_t colStart, uint8_t colCnt)
-{
+// Clears particular segment of a row
+void LiquidCrystal_I2C::clear(uint8_t rowStart, uint8_t colStart, uint8_t colCnt) {
   // Maintain input parameters
-  rowStart = max(min(rowStart, _rows - 1), 0);
-  colStart = max(min(colStart, _cols - 1), 0);
-  colCnt   = max(min(colCnt, _cols - colStart), 0);
+  rowStart = constrain(rowStart, 0, _rows - 1);
+  colStart = constrain(colStart, 0, _cols - 1);
+  colCnt   = constrain(colCnt,   0, _cols - colStart);
   // Clear segment
   if (colCnt > 0) {
     setCursor(colStart, rowStart);
@@ -285,6 +285,66 @@ void LiquidCrystal_I2C::pulseEnable(uint8_t _data){
 	delayMicroseconds(50);		// commands need > 37us to settle
 } 
 
+// Initializes custom characters for input graph type
+uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype) {
+  const uint8_t chrCols = LCD_CHARACTER_HORIZONTAL_DOTS;
+  const uint8_t chrRows = LCD_CHARACTER_VERTICAL_DOTS;
+	switch (graphtype) {
+		// case LCDI2C_VERTICAL_BAR_GRAPH:
+				// Wire.beginTransmission(g_i2caddress);
+				// Wire.send(0xFE);
+				// Wire.send(0x18);
+				// Wire.endTransmission();
+				// break;
+		case LCDI2C_HORIZONTAL_BAR_GRAPH:
+      uint8_t cc[chrCols][chrRows];   // Array for custom characters
+      for (uint8_t idxCol = chrCols; idxCol > 0; idxCol--) {
+        for (uint8_t idxRow = 0; idxRow < chrRows; idxRow++) {
+          cc[idxCol-1][idxRow] = B11111 << (chrCols - idxCol);
+        }
+        createChar(idxCol-1, cc[idxCol-1]);
+      }
+			break;
+		// case LCDI2C_HORIZONTAL_LINE_GRAPH:
+				// Wire.beginTransmission(g_i2caddress);
+				// Wire.send(0xFE);
+				// Wire.send(0x16);
+				// Wire.send(0x01);
+				// Wire.endTransmission();
+				// break;
+		default:
+			return 1;
+	}
+  _graphtype = graphtype;
+	return 0;
+}
+
+// Display bar graph from desired cursor position with input value
+void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end) {
+  // Maintain input parameters
+  row = constrain(row, 0, _rows - 1);
+  column = constrain(column, 0, _cols - 1);
+  len = constrain(len, 0, _cols - column);
+  pixel_col_end = constrain(pixel_col_end, 0, (len * LCD_CHARACTER_HORIZONTAL_DOTS) - 1);
+  // Display graph
+  uint8_t fullChars, lastDots, idxFullChar, idxLastChar;
+	switch (_graphtype) {
+    case LCDI2C_HORIZONTAL_BAR_GRAPH:
+      fullChars = (pixel_col_end + 1) / LCD_CHARACTER_HORIZONTAL_DOTS;
+      lastDots = (pixel_col_end + 1) % LCD_CHARACTER_HORIZONTAL_DOTS;
+      idxFullChar = LCD_CHARACTER_HORIZONTAL_DOTS - 1;
+      idxLastChar = max(lastDots - 1, 0);
+      break;
+		default:
+			return;
+  }
+  setCursor(column, row);
+  // Display full characters and last character
+  for (uint8_t i = 0; i < fullChars; i++) {
+    write(LCD_CHARACTER_HORIZONTAL_DOTS - 1);
+  }
+  if (lastDots > 0) write(idxLastChar);
+}
 
 // Alias functions
 
@@ -323,14 +383,13 @@ void LiquidCrystal_I2C::printstr(const char c[]){
 }
 
 
+
 // unsupported API functions
 void LiquidCrystal_I2C::off(){}
 void LiquidCrystal_I2C::on(){}
 void LiquidCrystal_I2C::setDelay (int cmdDelay,int charDelay) {}
 uint8_t LiquidCrystal_I2C::status(){return 0;}
 uint8_t LiquidCrystal_I2C::keypad (){return 0;}
-uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype){return 0;}
-void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end){}
 void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_row_end){}
 void LiquidCrystal_I2C::setContrast(uint8_t new_val){}
 

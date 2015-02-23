@@ -5,6 +5,12 @@
   DESCRIPTION:
   Library for parallel HD44780 compatible LCDs interfaced via a Chinese
   PCF8574 I2C serial extender.
+  - Library adds (overloads) clear() function for clearing particular
+    segment of an input row.
+  - Library implements extended graph functions with help of custom 
+    characters, so that do not user your custom characters concurrently
+    with graph function. Your custom characters will be overwritten by
+    graph initialization.
 
   LICENSE:
   This program is free software; you can redistribute it and/or modify
@@ -16,8 +22,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.1.0
-  Updated: 22.02.2015
+  Version: 2.2.0
+  Updated: 23.02.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -68,6 +74,13 @@
 #define LCD_BACKLIGHT   B00001000
 #define LCD_NOBACKLIGHT B00000000
 
+// values for graphtype in calls to init_bargraph and character geometry
+#define LCDI2C_VERTICAL_BAR_GRAPH    1
+#define LCDI2C_HORIZONTAL_BAR_GRAPH  2
+#define LCDI2C_HORIZONTAL_LINE_GRAPH 3
+#define LCD_CHARACTER_HORIZONTAL_DOTS 5
+#define LCD_CHARACTER_VERTICAL_DOTS   8
+
 #define En B00000100  // Enable bit
 #define Rw B00000010  // Read/Write bit
 #define Rs B00000001  // Register select bit
@@ -77,8 +90,7 @@ public:
   LiquidCrystal_I2C(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows);
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS );
   void clear();
-
-  /*
+/*
   Clear particular segment of a row.
   DESCRIPTION:  Overloaded original function clear(). Thanks to defaulted
                 parameters, for clearing the entire row use just
@@ -92,7 +104,7 @@ public:
   colCnt    - number of cleared characters.
               Defaulted to 255.
               Limited to remaining characters on the row.
-  RETURN:	void
+  RETURN:	none
 */
   void clear(uint8_t rowStart, uint8_t colStart = 0, uint8_t colCnt = 255);
   void home();
@@ -119,6 +131,39 @@ public:
   virtual size_t write(uint8_t);
   void command(uint8_t);
   void init();
+  /*
+  Initialize particular bar graph.
+  DESCRIPTION:  Creates a set of custom characters for displaying bar graphs.
+                Some number of first current custom characters will be
+                overwritten according to the type of graph.
+  PARAMETERS:
+  graphtype - type of graph defined by the macros
+              LCDI2C_VERTICAL_BAR_GRAPH
+              LCDI2C_HORIZONTAL_BAR_GRAPH - rewrites 5 custom characters
+              LCDI2C_HORIZONTAL_LINE_GRAPH
+  RETURN:	error code
+          0 - at success
+          1 - at failure, e.g., graph type not recognized
+*/
+uint8_t init_bargraph(uint8_t graphtype);
+  /*
+  Display bar graph from desired cursor position with input value
+  DESCRIPTION:  Displays bar starting at input cursor position composed
+                of custom characters. For bar is reserved particular number
+                of characters on the row and current displayed characters
+                determine the current value of graph.
+  PARAMETERS:
+  row           - row of segment reserved for graph counting from 0
+  column        - column of segment reserved for graph counting from 0
+  len           - number of characters reserved for graph
+  pixel_col_end - positiion of horizontal dots representing displayed bar
+                  (current value of graph) counting from 0.
+                  Limited to dots of reserved segment of the graph.
+  RETURN:	none
+*/
+void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pixel_col_end);
+  
+ 
 
 
 ////compatibility API function aliases
@@ -137,8 +182,6 @@ uint8_t keypad();
 void setDelay(int,int);
 void on();
 void off();
-uint8_t init_bargraph(uint8_t graphtype);
-void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end);
 void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end);
 	 
 
@@ -156,6 +199,7 @@ private:
   uint8_t _cols;
   uint8_t _rows;
   uint8_t _backlightval;
+  uint8_t _graphtype;
 };
 
 #endif
