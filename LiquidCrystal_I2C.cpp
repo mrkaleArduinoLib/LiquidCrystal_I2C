@@ -16,8 +16,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.1.0
-  Updated: 22.02.2015
+  Version: 2.2.0
+  Updated: 24.02.2015
  */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
@@ -285,10 +285,20 @@ void LiquidCrystal_I2C::pulseEnable(uint8_t _data){
 	delayMicroseconds(50);		// commands need > 37us to settle
 } 
 
+// Create custom characters for horizontal graphs
+uint8_t LiquidCrystal_I2C::graphHorizontalChars(uint8_t fullCharRowPattern) {
+  uint8_t cc[LCD_CHARACTER_HORIZONTAL_DOTS][LCD_CHARACTER_VERTICAL_DOTS];
+  for (uint8_t idxCol = LCD_CHARACTER_HORIZONTAL_DOTS - 1; idxCol > 0; idxCol--) {
+    for (uint8_t idxRow = 0; idxRow < LCD_CHARACTER_VERTICAL_DOTS; idxRow++) {
+      cc[idxCol][idxRow] = fullCharRowPattern << (LCD_CHARACTER_HORIZONTAL_DOTS - 1 - idxCol);
+    }
+    createChar(idxCol, cc[idxCol]);
+  }
+  return LCD_CHARACTER_HORIZONTAL_DOTS;
+}
+
 // Initializes custom characters for input graph type
 uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype) {
-  const uint8_t chrCols = LCD_CHARACTER_HORIZONTAL_DOTS;
-  const uint8_t chrRows = LCD_CHARACTER_VERTICAL_DOTS;
 	switch (graphtype) {
 		// case LCDI2C_VERTICAL_BAR_GRAPH:
 				// Wire.beginTransmission(g_i2caddress);
@@ -297,21 +307,11 @@ uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype) {
 				// Wire.endTransmission();
 				// break;
 		case LCDI2C_HORIZONTAL_BAR_GRAPH:
-      uint8_t cc[chrCols][chrRows];   // Array for custom characters
-      for (uint8_t idxCol = chrCols; idxCol > 0; idxCol--) {
-        for (uint8_t idxRow = 0; idxRow < chrRows; idxRow++) {
-          cc[idxCol-1][idxRow] = B11111 << (chrCols - idxCol);
-        }
-        createChar(idxCol-1, cc[idxCol-1]);
-      }
+      graphHorizontalChars(B11111);
 			break;
-		// case LCDI2C_HORIZONTAL_LINE_GRAPH:
-				// Wire.beginTransmission(g_i2caddress);
-				// Wire.send(0xFE);
-				// Wire.send(0x16);
-				// Wire.send(0x01);
-				// Wire.endTransmission();
-				// break;
+		case LCDI2C_HORIZONTAL_LINE_GRAPH:
+      graphHorizontalChars(B00001);
+			break;
 		default:
 			return 1;
 	}
@@ -320,30 +320,43 @@ uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype) {
 }
 
 // Display bar graph from desired cursor position with input value
-void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end) {
+void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pixel_col_end) {
   // Maintain input parameters
   row = constrain(row, 0, _rows - 1);
   column = constrain(column, 0, _cols - 1);
   len = constrain(len, 0, _cols - column);
   pixel_col_end = constrain(pixel_col_end, 0, (len * LCD_CHARACTER_HORIZONTAL_DOTS) - 1);
   // Display graph
-  uint8_t fullChars, lastDots, idxFullChar, idxLastChar;
+  uint8_t fullChars, lastDots, drawChars, idxFullChar, idxLastChar;
 	switch (_graphtype) {
     case LCDI2C_HORIZONTAL_BAR_GRAPH:
       fullChars = (pixel_col_end + 1) / LCD_CHARACTER_HORIZONTAL_DOTS;
       lastDots = (pixel_col_end + 1) % LCD_CHARACTER_HORIZONTAL_DOTS;
+      drawChars = fullChars + (lastDots > 0 ? 1 : 0);
       idxFullChar = LCD_CHARACTER_HORIZONTAL_DOTS - 1;
       idxLastChar = max(lastDots - 1, 0);
+      // Clear remaining chars in segment
+      clear(row, drawChars, len - drawChars);
+      // Display full characters and last character
+      setCursor(column, row);
+      for (uint8_t i = 0; i < fullChars; i++) {
+        write(LCD_CHARACTER_HORIZONTAL_DOTS - 1);
+      }
+      if (lastDots > 0) write(idxLastChar);
+      break;
+    case LCDI2C_HORIZONTAL_LINE_GRAPH:
+      fullChars = pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS;
+      lastDots = pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS;
+      idxLastChar = lastDots;
+      // Clear entire segment
+      clear(row, column, len);
+      // Display last character only
+      setCursor(fullChars, row);
+      write(idxLastChar);
       break;
 		default:
 			return;
   }
-  setCursor(column, row);
-  // Display full characters and last character
-  for (uint8_t i = 0; i < fullChars; i++) {
-    write(LCD_CHARACTER_HORIZONTAL_DOTS - 1);
-  }
-  if (lastDots > 0) write(idxLastChar);
 }
 
 // Alias functions

@@ -23,7 +23,7 @@
   CREDENTIALS:
   Author: Libor Gabaj
   Version: 2.2.0
-  Updated: 23.02.2015
+  Updated: 24.02.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -99,7 +99,7 @@ public:
   rowStart  - row number to be cleared counting from 0.
               Limited to the last row.
   colStart  - column number of the cleared segment counting from 0.
-              Defaulted to the very beginnig of the row.
+              Defaulted to the very begining of the row.
               Limited to the last character.
   colCnt    - number of cleared characters.
               Defaulted to 255.
@@ -133,38 +133,42 @@ public:
   void init();
   /*
   Initialize particular bar graph.
+  
   DESCRIPTION:  Creates a set of custom characters for displaying bar graphs.
                 Some number of first current custom characters will be
                 overwritten according to the type of graph.
+
   PARAMETERS:
-  graphtype - type of graph defined by the macros
-              LCDI2C_VERTICAL_BAR_GRAPH
-              LCDI2C_HORIZONTAL_BAR_GRAPH - rewrites 5 custom characters
-              LCDI2C_HORIZONTAL_LINE_GRAPH
+  uint8_t graphtype
+    - type of graph defined by the macros
+      LCDI2C_VERTICAL_BAR_GRAPH
+      LCDI2C_HORIZONTAL_BAR_GRAPH  - rewrites 5 first custom characters
+      LCDI2C_HORIZONTAL_LINE_GRAPH - rewrites 5 first custom characters
+
   RETURN:	error code
           0 - at success
           1 - at failure, e.g., graph type not recognized
 */
 uint8_t init_bargraph(uint8_t graphtype);
-  /*
+/*
   Display bar graph from desired cursor position with input value
+  
   DESCRIPTION:  Displays bar starting at input cursor position composed
                 of custom characters. For bar is reserved particular number
                 of characters on the row and current displayed characters
                 determine the current value of graph.
+  
   PARAMETERS:
-  row           - row of segment reserved for graph counting from 0
-  column        - column of segment reserved for graph counting from 0
-  len           - number of characters reserved for graph
-  pixel_col_end - positiion of horizontal dots representing displayed bar
-                  (current value of graph) counting from 0.
-                  Limited to dots of reserved segment of the graph.
+  uint8_t row           - row of segment reserved for graph counting from 0
+  uint8_t column        - column of segment reserved for graph counting from 0
+  uint8_t len           - number of characters reserved for graph
+  uint8_t pixel_col_end - position of horizontal dots representing displayed bar
+                          (current value of graph) counting from 0.
+                          Limited to dots of reserved segment of the graph.
+  
   RETURN:	none
 */
 void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pixel_col_end);
-  
- 
-
 
 ////compatibility API function aliases
 void blink_on();						// alias for blink()
@@ -191,6 +195,23 @@ private:
   void write4bits(uint8_t);
   void expanderWrite(uint8_t);
   void pulseEnable(uint8_t);
+/*
+  Create custom characters for horizontal graphs
+  
+  DESCRIPTION:  Creates the set of custom characters for displaying
+                horizontal graphs.
+                The first 5 current custom characters will be overwritten.
+  
+  PARAMETERS:
+  uint8_t fullCharRowPattern - row pattern of the full character
+                               * For bar graph it is full row of the character.
+                               * For line graph it is last dot of the character.
+                               * Pattern is bit shifted from the right for every
+                                 custom character and applied to all rows of it.
+
+  RETURN:	uint8_t - number of created custom characters
+*/
+  uint8_t graphHorizontalChars(uint8_t fullCharRowPattern);
   uint8_t _Addr;
   uint8_t _displayfunction;
   uint8_t _displaycontrol;
