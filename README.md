@@ -29,6 +29,7 @@ Version 2.2.0
 - Added overloaded graph functions for horizontal and vertical bar graphs
 
 	`void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float percentage)`
+	
 	`void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float percentage)`
 
 	- Difference is in the graph value, which is the **percentage of the graph segment** length. It avoids to express the graph value in physical units.
@@ -38,13 +39,14 @@ Version 2.2.0
 	`uint8_t init_bargraph(uint8_t graphtype)`
 
 	- Type of graph is determined by macros from official API
-      - LCDI2C\_VERTICAL\_BAR_GRAPH
+      	- LCDI2C\_VERTICAL\_BAR_GRAPH
     	- LCDI2C\_HORIZONTAL\_BAR_GRAPH
     	- LCDI2C\_HORIZONTAL\_LINE_GRAPH
 
 - Added private functions for creating graph custom characters
 
 	`uint8_t graphHorizontalChars(uint8_t rowPattern)`
+	
 	`uint8_t graphVerticalChars(uint8_t rowPattern)`  
 
 - Added macros for display character geometry
