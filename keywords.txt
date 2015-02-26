@@ -44,6 +44,8 @@ load_custom_character	KEYWORD2
 printstr	KEYWORD2
 init_bargraph	KEYWORD2
 draw_horizontal_graph	KEYWORD2
+graphHorizontalChars	KEYWORD2
+graphVerticalChars	KEYWORD2
 ###########################################
 # Constants (LITERAL1)
 ###########################################

@@ -146,9 +146,9 @@ public:
 
   PARAMETERS:
   uint8_t graphtype - type of graph
-    LCDI2C_VERTICAL_BAR_GRAPH
-    LCDI2C_HORIZONTAL_BAR_GRAPH  - rewrites 5 first custom characters
-    LCDI2C_HORIZONTAL_LINE_GRAPH - rewrites 5 first custom characters
+    LCDI2C_VERTICAL_BAR_GRAPH    - rewrites all 8 custom characters
+    LCDI2C_HORIZONTAL_BAR_GRAPH  - rewrites first 5 custom characters
+    LCDI2C_HORIZONTAL_LINE_GRAPH - rewrites first 5 custom characters
 
   RETURN:	error code
           0 - at success
