@@ -5,12 +5,14 @@
   DESCRIPTION:
   Library for parallel HD44780 compatible LCDs interfaced via a Chinese
   PCF8574 I2C serial extender.
-  - Library adds (overloads) clear() function for clearing particular
+  - Library adds overloaded clear() function for clearing particular
     segment of an input row.
   - Library implements extended graph functions with help of custom 
-    characters, so that do not user your custom characters concurrently
+    characters, so that do not use your custom characters concurrently
     with graph function. Your custom characters will be overwritten by
     graph initialization.
+  - Library adds overloaded graph functions for expression graph value
+    in percentage instead of pixels.
 
   LICENSE:
   This program is free software; you can redistribute it and/or modify
@@ -23,7 +25,7 @@
   CREDENTIALS:
   Author: Libor Gabaj
   Version: 2.2.0
-  Updated: 24.02.2015
+  Updated: 26.02.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -91,10 +93,12 @@ public:
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS );
   void clear();
 /*
-  Clear particular segment of a row.
-  DESCRIPTION:  Overloaded original function clear(). Thanks to defaulted
-                parameters, for clearing the entire row use just
-                clear(rowStart).
+  Clear particular segment of a row
+  
+  DESCRIPTION:
+  Overloaded original function clear(). Thanks to defaulted  parameters,
+  for clearing the entire row use just clear(rowStart).
+  
   PARAMETERS:
   rowStart  - row number to be cleared counting from 0.
               Limited to the last row.
@@ -104,6 +108,7 @@ public:
   colCnt    - number of cleared characters.
               Defaulted to 255.
               Limited to remaining characters on the row.
+  
   RETURN:	none
 */
   void clear(uint8_t rowStart, uint8_t colStart = 0, uint8_t colCnt = 255);
@@ -132,18 +137,18 @@ public:
   void command(uint8_t);
   void init();
   /*
-  Initialize particular bar graph.
+  Initialize particular bar graph
   
-  DESCRIPTION:  Creates a set of custom characters for displaying bar graphs.
-                Some number of first current custom characters will be
-                overwritten according to the type of graph.
+  DESCRIPTION:
+  Creates a set of custom characters for displaying bar graphs.
+  Some number of first current custom characters will be overwritten
+  according to the type of graph.
 
   PARAMETERS:
-  uint8_t graphtype
-    - type of graph defined by the macros
-      LCDI2C_VERTICAL_BAR_GRAPH
-      LCDI2C_HORIZONTAL_BAR_GRAPH  - rewrites 5 first custom characters
-      LCDI2C_HORIZONTAL_LINE_GRAPH - rewrites 5 first custom characters
+  uint8_t graphtype - type of graph
+    LCDI2C_VERTICAL_BAR_GRAPH
+    LCDI2C_HORIZONTAL_BAR_GRAPH  - rewrites 5 first custom characters
+    LCDI2C_HORIZONTAL_LINE_GRAPH - rewrites 5 first custom characters
 
   RETURN:	error code
           0 - at success
@@ -151,24 +156,62 @@ public:
 */
 uint8_t init_bargraph(uint8_t graphtype);
 /*
-  Display bar graph from desired cursor position with input value
+  Display horizontal graph from desired cursor position with input value
   
-  DESCRIPTION:  Displays bar starting at input cursor position composed
-                of custom characters. For bar is reserved particular number
-                of characters on the row and current displayed characters
-                determine the current value of graph.
+  DESCRIPTION:
+  Displays horizontal bar or running pipe starting at input cursor position
+  composed of custom characters.
+  For graph is reserved "len" characters long segment on the "row" starting
+  on "column".
+  Current value of the bar graph is displayed as "pixel_col_end" pipes
+  in the graph segment.
+  Current value of the line graph is displayed as pipe on "pixel_col_end"
+  dot position in the graph segment.
   
   PARAMETERS:
-  uint8_t row           - row of segment reserved for graph counting from 0
-  uint8_t column        - column of segment reserved for graph counting from 0
-  uint8_t len           - number of characters reserved for graph
-  uint8_t pixel_col_end - position of horizontal dots representing displayed bar
-                          (current value of graph) counting from 0.
-                          Limited to dots of reserved segment of the graph.
+  uint8_t row           - row positon of graph segment counting from 0
+                          Limited to physical rows.
+  uint8_t column        - column position of graph segment counting from 0
+                          Limited to physical columns.
+  uint8_t len           - length of graph segment in characters
+                          Limited to remaining physical columns from row position.
+  uint8_t pixel_col_end - value of graph in pipes counting from 0
+                          Limited to physical dots of graph segment.
   
   RETURN:	none
 */
 void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pixel_col_end);
+/*
+  Display vertical graph from desired cursor position with input value
+  
+  DESCRIPTION:
+  Displays vertical bar starting at "row", "column" position composed
+  of custom characters.
+  For bar is reserved "len" rows long segment on the "column" starting on
+  "row".
+  Current value of the bar graph is displayed as "pixel_row_end" dashes
+  from bottom to top of the graph segment.
+  
+  PARAMETERS:
+  uint8_t row           - row positon of graph segment counting from 0
+                          Limited to physical rows.
+  uint8_t column        - column position of graph segment counting from 0
+                          Limited to physical columns.
+  uint8_t len           - length of graph segment in characters
+                          Limited to remaining physical rows from row position.
+  uint8_t pixel_row_end - value of graph in pipes counting from 0
+                          Limited to physical dots of graph segment.
+  
+  RETURN:	none
+*/
+void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_row_end);
+/*
+  Overloaded methods with difference
+  PARAMETERS:
+  float percentage - percentage of graph segment as graph value
+*/
+void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float percentage);
+void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float percentage);
 
 ////compatibility API function aliases
 void blink_on();						// alias for blink()
@@ -186,7 +229,6 @@ uint8_t keypad();
 void setDelay(int,int);
 void on();
 void off();
-void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end);
 	 
 
 private:
@@ -198,20 +240,33 @@ private:
 /*
   Create custom characters for horizontal graphs
   
-  DESCRIPTION:  Creates the set of custom characters for displaying
-                horizontal graphs.
-                The first 5 current custom characters will be overwritten.
+  DESCRIPTION:
+  Creates the set of custom characters for displaying horizontal graphs.
+  The first 5 current custom characters will be overwritten.
+  Particular custom characters are filled by bit shifting fullCharRowPattern
+  from the right to the left.
   
   PARAMETERS:
-  uint8_t fullCharRowPattern - row pattern of the full character
-                               * For bar graph it is full row of the character.
-                               * For line graph it is last dot of the character.
-                               * Pattern is bit shifted from the right for every
-                                 custom character and applied to all rows of it.
+  uint8_t rowPattern - row pattern of the full character
 
   RETURN:	uint8_t - number of created custom characters
 */
-  uint8_t graphHorizontalChars(uint8_t fullCharRowPattern);
+  uint8_t graphHorizontalChars(uint8_t rowPattern);
+/*
+  Create custom characters for vertical graphs
+  
+  DESCRIPTION:
+  Creates the set of custom characters for displaying vertical graphs.
+  All 8 current custom characters will be overwritten.
+  Particular custom characters are filled with rowPattern from the very
+  bottom pixel line.
+  
+  PARAMETERS:
+  uint8_t rowPattern - row pattern of the pixel line
+
+  RETURN:	uint8_t - number of created custom characters
+*/
+  uint8_t graphVerticalChars(uint8_t rowPattern);
   uint8_t _Addr;
   uint8_t _displayfunction;
   uint8_t _displaycontrol;
