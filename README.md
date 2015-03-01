@@ -3,6 +3,27 @@ A reimplementation of the standard Arduino LCD library, configured to work
 with parallel HD44780 compatible LCDs, and interfaced via a Chinese
 PCF8574 I2C serial extender.
 
+Version 2.3.0
+--
+- Changed overloaded percentage graph functions for horizontal and vertical bar graphs to
+
+	`void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint16_t percentage)`
+	
+	`void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint16_t percentage)`
+
+  - Added overloaded ratio graph functions for horizontal and vertical bar graphs:
+
+	`void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float ratio)`
+	
+	`void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float ratio)`
+  
+  - Fixed and optimized clearing of display area.
+  - Added examples for
+    - Horizontal bar graph
+    - Horizontal line graph
+    - Vertical bar graph
+    - Histogram
+
 Version 2.2.0
 --
 - Implemented function for horizontal bar and line graphs from official API with help of custom characters

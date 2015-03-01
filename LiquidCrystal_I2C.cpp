@@ -16,8 +16,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.2.0
-  Updated: 26.02.2015
+  Version: 2.3.0
+  Updated: 01.03.2015
  */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
@@ -311,10 +311,18 @@ uint8_t LiquidCrystal_I2C::graphVerticalChars(uint8_t rowPattern) {
 
 // Initializes custom characters for input graph type
 uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype) {
+  // Initialize row state vector
+  for(byte i = 0; i < _rows; i++) {
+    _graphstate[i] = 255;
+  }
 	switch (graphtype) {
 		case LCDI2C_VERTICAL_BAR_GRAPH:
       graphVerticalChars(B11111);
-				break;
+      // Initialize column state vector
+      for(byte i = _rows; i < _cols; i++) {
+        _graphstate[i] = 255;
+      }
+			break;
 		case LCDI2C_HORIZONTAL_BAR_GRAPH:
       graphHorizontalChars(B11111);
 			break;
@@ -335,8 +343,9 @@ void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8
   column = constrain(column, 0, _cols - 1);
   len = constrain(len, 0, _cols - column);
   pixel_col_end = constrain(pixel_col_end, 0, (len * LCD_CHARACTER_HORIZONTAL_DOTS) - 1);
+  _graphstate[row] = constrain(_graphstate[row], column, column + len - 1);
   // Display graph
-	switch (_graphtype) {
+  switch (_graphtype) {
     case LCDI2C_HORIZONTAL_BAR_GRAPH:
       setCursor(column, row);
       // Display full characters
@@ -348,12 +357,21 @@ void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8
       write(pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS);
       len--;
       // Clear remaining chars in segment
-      for (uint8_t i = 0; i < len; i++) write(0x20);
+      for (uint8_t i = _graphstate[row]; i < len; i++) write(' ');
+      _graphstate[row] = len; // Length of graph remainder as its state
       break;
     case LCDI2C_HORIZONTAL_LINE_GRAPH:
-      clear(row, column, len);  // Clear entire segment
-      setCursor(pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS, row);
-      write(pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS); // Display last character only
+      // Last drawn column as graph state
+      len = pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS + column;
+      // Clear previous drawn character if differs from new one
+      if (len != _graphstate[row]) {
+        setCursor(_graphstate[row], row);
+        write(' ');
+        _graphstate[row] = len;
+      }
+      // Display graph character
+      setCursor(len, row);
+      write(pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS);
       break;
 		default:
 			return;
@@ -366,6 +384,7 @@ void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t
   column = constrain(column, 0, _cols - 1);
   len = constrain(len, 0, row + 1);
   pixel_row_end = constrain(pixel_row_end, 0, (len * LCD_CHARACTER_VERTICAL_DOTS) - 1);
+  _graphstate[column] = constrain(_graphstate[column], row - len + 1, row);
   // Display graph
 	switch (_graphtype) {
     case LCDI2C_VERTICAL_BAR_GRAPH:
@@ -373,30 +392,37 @@ void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t
       for (uint8_t i = 0; i < pixel_row_end / LCD_CHARACTER_VERTICAL_DOTS; i++) {
         setCursor(column, row--);
         write(LCD_CHARACTER_VERTICAL_DOTS - 1);
-        len--;
       }
       // Display the highest character
-      setCursor(column, row--);
+      setCursor(column, row);
       write(pixel_row_end % LCD_CHARACTER_VERTICAL_DOTS);
-      len--;
       // Clear remaining top chars in column
-      for (uint8_t i = 0; i < len; i++) {
-        setCursor(column, row--);
-        write(0x20);
+      for (uint8_t i = _graphstate[column]; i < row; i++) {
+        setCursor(column, i);
+        write(' ');
       }
+      _graphstate[column] = row; // Last drawn row as its state
       break;
 		default:
 			return;
   }
 }
 // Overloaded methods
-void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float percentage) {
+void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint16_t percentage) {
   percentage = (percentage * len * LCD_CHARACTER_HORIZONTAL_DOTS / 100) - 1;
   draw_horizontal_graph(row, column, len, (uint8_t) percentage);
 }
-void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float percentage) {
+void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float ratio) {
+  ratio = (ratio * len * LCD_CHARACTER_HORIZONTAL_DOTS) - 1;
+  draw_horizontal_graph(row, column, len, (uint8_t) ratio);
+}
+void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint16_t percentage) {
   percentage = (percentage * len * LCD_CHARACTER_VERTICAL_DOTS / 100) - 1;
   draw_vertical_graph(row, column, len, (uint8_t) percentage);
+}
+void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float ratio) {
+  ratio = (ratio * len * LCD_CHARACTER_VERTICAL_DOTS) - 1;
+  draw_vertical_graph(row, column, len, (uint8_t) ratio);
 }
 
 // Alias functions

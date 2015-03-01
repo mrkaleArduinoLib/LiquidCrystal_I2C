@@ -24,8 +24,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.2.0
-  Updated: 26.02.2015
+  Version: 2.3.0
+  Updated: 01.03.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -161,12 +161,14 @@ uint8_t init_bargraph(uint8_t graphtype);
   DESCRIPTION:
   Displays horizontal bar or running pipe starting at input cursor position
   composed of custom characters.
-  For graph is reserved "len" characters long segment on the "row" starting
-  on "column".
-  Current value of the bar graph is displayed as "pixel_col_end" pipes
-  in the graph segment.
-  Current value of the line graph is displayed as pipe on "pixel_col_end"
-  dot position in the graph segment.
+  * For graph is reserved "len" characters long segment on the "row" starting
+    on "column".
+  * Current value of the bar graph is displayed as "pixel_col_end" pipes
+    in the graph segment.
+  * Current value of the line graph is displayed as pipe on "pixel_col_end"
+    dot position in the graph segment.
+  * Zero value of the graph is displayes as the very left pipe in the
+    graph segment, so that the graph always display something.
   
   PARAMETERS:
   uint8_t row           - row positon of graph segment counting from 0
@@ -206,12 +208,19 @@ void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pix
 */
 void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_row_end);
 /*
-  Overloaded methods with difference
+  Overloaded methods with type difference of graph value
+  
   PARAMETERS:
-  float percentage - percentage of graph segment as graph value
+  uint16_t percentage - percentage of graph segment as graph value
+    Although expected range is 0 to 100, uint8_t has been reserved
+    by official API already.
+  float ratio - fraction of graph segment as graph value
+    Expected range is 0.0 to 1.0
 */
-void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float percentage);
-void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float percentage);
+void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint16_t percentage);
+void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, float ratio);
+void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint16_t percentage);
+void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float ratio);
 
 ////compatibility API function aliases
 void blink_on();						// alias for blink()
@@ -275,7 +284,8 @@ private:
   uint8_t _cols;
   uint8_t _rows;
   uint8_t _backlightval;
-  uint8_t _graphtype;
+  uint8_t _graphtype;   // Internal code for graph type
+  uint8_t _graphstate[20];  // Internal last graph column/row state
 };
 
 #endif
