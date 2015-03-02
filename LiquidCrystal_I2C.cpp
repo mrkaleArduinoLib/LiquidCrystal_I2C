@@ -16,8 +16,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.3.0
-  Updated: 01.03.2015
+  Version: 2.4.0
+  Updated: 02.03.2015
  */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
@@ -351,26 +351,26 @@ void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8
       // Display full characters
       for (uint8_t i = 0; i < pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS; i++) {
         write(LCD_CHARACTER_HORIZONTAL_DOTS - 1);
-        len--;
+        column++;
       }
       // Display last character
       write(pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS);
-      len--;
       // Clear remaining chars in segment
-      for (uint8_t i = _graphstate[row]; i < len; i++) write(' ');
-      _graphstate[row] = len; // Length of graph remainder as its state
+      for (uint8_t i = column; i < _graphstate[row]; i++) write(' ');
+      // Last drawn column as graph state
+      _graphstate[row] = column;
       break;
     case LCDI2C_HORIZONTAL_LINE_GRAPH:
-      // Last drawn column as graph state
-      len = pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS + column;
+      // Drawn column as graph state
+      column += pixel_col_end / LCD_CHARACTER_HORIZONTAL_DOTS;
       // Clear previous drawn character if differs from new one
-      if (len != _graphstate[row]) {
+      if (_graphstate[row] != column) {
         setCursor(_graphstate[row], row);
         write(' ');
-        _graphstate[row] = len;
+        _graphstate[row] = column;
       }
       // Display graph character
-      setCursor(len, row);
+      setCursor(column, row);
       write(pixel_col_end % LCD_CHARACTER_HORIZONTAL_DOTS);
       break;
 		default:

@@ -3,6 +3,10 @@ A reimplementation of the standard Arduino LCD library, configured to work
 with parallel HD44780 compatible LCDs, and interfaced via a Chinese
 PCF8574 I2C serial extender.
 
+Version 2.4.0
+--
+- Fixed clearing in horizontal line graph.
+
 Version 2.3.0
 --
 - Changed overloaded percentage graph functions for horizontal and vertical bar graphs to

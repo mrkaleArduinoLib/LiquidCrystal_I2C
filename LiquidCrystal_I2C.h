@@ -24,8 +24,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.3.0
-  Updated: 01.03.2015
+  Version: 2.4.0
+  Updated: 02.03.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
