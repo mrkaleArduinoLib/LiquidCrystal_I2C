@@ -24,8 +24,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.4.0
-  Updated: 02.03.2015
+  Version: 2.5.0
+  Updated: 03.03.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -96,8 +96,10 @@ public:
   Clear particular segment of a row
   
   DESCRIPTION:
-  Overloaded original function clear(). Thanks to defaulted  parameters,
-  for clearing the entire row use just clear(rowStart).
+  Overloaded original function clear().
+  * Thanks to default  parameters, for clearing the entire row
+    use just clear(rowStart).
+  * The functions sets the cursor to start column and row after clearing.
   
   PARAMETERS:
   rowStart  - row number to be cleared counting from 0.

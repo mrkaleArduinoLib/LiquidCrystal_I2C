@@ -16,8 +16,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 2.4.0
-  Updated: 02.03.2015
+  Version: 2.5.0
+  Updated: 03.03.2015
  */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
@@ -138,10 +138,10 @@ void LiquidCrystal_I2C::clear(uint8_t rowStart, uint8_t colStart, uint8_t colCnt
   colStart = constrain(colStart, 0, _cols - 1);
   colCnt   = constrain(colCnt,   0, _cols - colStart);
   // Clear segment
-  if (colCnt > 0) {
-    setCursor(colStart, rowStart);
-    for (uint8_t i = 0; i < colCnt; i++) write(0x20);
-  }
+  setCursor(colStart, rowStart);
+  for (uint8_t i = 0; i < colCnt; i++) write(' ');
+  // Go to segment start
+  setCursor(colStart, rowStart);
 }
 
 

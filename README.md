@@ -3,6 +3,10 @@ A reimplementation of the standard Arduino LCD library, configured to work
 with parallel HD44780 compatible LCDs, and interfaced via a Chinese
 PCF8574 I2C serial extender.
 
+Version 2.5.0
+--
+- Setting cursor to start column and row after row clearing.
+
 Version 2.4.0
 --
 - Fixed clearing in horizontal line graph.
