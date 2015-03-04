@@ -24,8 +24,9 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
+  GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
   Version: 2.5.0
-  Updated: 03.03.2015
+  Updated: 04.03.2015
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h

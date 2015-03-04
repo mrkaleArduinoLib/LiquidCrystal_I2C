@@ -20,8 +20,8 @@
     
   CREDENTIALS:
   Author: Libor Gabaj
-  Version: 1.0.0
-  Updated: 03.03.2015
+  Version: 1.1.0
+  Updated: 04.03.2015
 */
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -108,6 +108,7 @@ void loop()
         for (byte row=0; row < lcdRows; row++) {
           lcd.print(F("Line "));
           lcd.print(row);
+          delay(testDelay);
           lcd.setCursor(0, row + 1);
         }
         break;
