@@ -5,6 +5,8 @@
   DESCRIPTION:
   Library for parallel HD44780 compatible LCDs interfaced via a Chinese
   PCF8574 I2C serial extender.
+  - Library implements LCD API 1.0 to the extend the appropriate LCDs
+    support functionality expected by the API.
   - Library adds overloaded clear() function for clearing particular
     segment of an input row.
   - Library implements extended graph functions with help of custom 
@@ -25,8 +27,8 @@
   CREDENTIALS:
   Author: Libor Gabaj
   GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
-  Version: 2.5.0
-  Updated: 04.03.2015
+  Version: 2.6.0
+  Updated: 23.02.2016
  */
 #ifndef LiquidCrystal_I2C_h
 #define LiquidCrystal_I2C_h
@@ -90,9 +92,9 @@
 
 class LiquidCrystal_I2C : public Print {
 public:
-  LiquidCrystal_I2C(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows);
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS );
-  void clear();
+  LiquidCrystal_I2C(uint8_t addr, uint8_t cols, uint8_t rows);
+  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+  void init();
 /*
   Clear particular segment of a row
   
@@ -114,6 +116,7 @@ public:
   
   RETURN:	none
 */
+  void clear();
   void clear(uint8_t rowStart, uint8_t colStart = 0, uint8_t colCnt = 255);
   void home();
   void noDisplay();
@@ -124,22 +127,18 @@ public:
   void cursor();
   void scrollDisplayLeft();
   void scrollDisplayRight();
-  void printLeft();
-  void printRight();
   void leftToRight();
   void rightToLeft();
-  void shiftIncrement();
-  void shiftDecrement();
   void noBacklight();
   void backlight();
-  void autoscroll();
   void noAutoscroll(); 
-  void createChar(uint8_t, uint8_t[]);
-  void setCursor(uint8_t, uint8_t); 
-  virtual size_t write(uint8_t);
-  void command(uint8_t);
-  void init();
-  /*
+  void autoscroll();
+  void createChar(uint8_t location, uint8_t charmap[]);
+  void setCursor(uint8_t col, uint8_t row); 
+  virtual size_t write(uint8_t value);
+  void command(uint8_t value);
+
+/*
   Initialize particular bar graph
   
   DESCRIPTION:
@@ -158,6 +157,7 @@ public:
           1 - at failure, e.g., graph type not recognized
 */
 uint8_t init_bargraph(uint8_t graphtype);
+
 /*
   Display horizontal graph from desired cursor position with input value
   
@@ -170,22 +170,23 @@ uint8_t init_bargraph(uint8_t graphtype);
     in the graph segment.
   * Current value of the line graph is displayed as pipe on "pixel_col_end"
     dot position in the graph segment.
-  * Zero value of the graph is displayes as the very left pipe in the
-    graph segment, so that the graph always display something.
+  * Zero value of the graph is displayed as the very left pipe in the
+    graph segment, so that the graph always displays something.
   
   PARAMETERS:
-  uint8_t row           - row positon of graph segment counting from 0
+  uint8_t row           - row position of graph segment counting from 0
                           Limited to physical rows.
   uint8_t column        - column position of graph segment counting from 0
                           Limited to physical columns.
   uint8_t len           - length of graph segment in characters
-                          Limited to remaining physical columns from row position.
+                          Limited to remaining physical columns from col position.
   uint8_t pixel_col_end - value of graph in pipes counting from 0
-                          Limited to physical dots of graph segment.
+                          Limited to physical horizontal dots of graph segment.
   
   RETURN:	none
 */
 void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pixel_col_end);
+
 /*
   Display vertical graph from desired cursor position with input value
   
@@ -198,18 +199,20 @@ void draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len, uint8_t pix
   from bottom to top of the graph segment.
   
   PARAMETERS:
-  uint8_t row           - row positon of graph segment counting from 0
+  uint8_t row           - row positon of the bottom of a graph segment
+													counting from 0
                           Limited to physical rows.
   uint8_t column        - column position of graph segment counting from 0
                           Limited to physical columns.
-  uint8_t len           - length of graph segment in characters
+  uint8_t len           - length of graph segment in rows
                           Limited to remaining physical rows from row position.
-  uint8_t pixel_row_end - value of graph in pipes counting from 0
-                          Limited to physical dots of graph segment.
+  uint8_t pixel_row_end - value of graph in dashes counting from 0
+                          Limited to physical vertical dots of graph segment.
   
   RETURN:	none
 */
 void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_row_end);
+
 /*
   Overloaded methods with type difference of graph value
   
@@ -226,22 +229,22 @@ void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint16_t per
 void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  float ratio);
 
 ////compatibility API function aliases
-void blink_on();						// alias for blink()
-void blink_off();       					// alias for noBlink()
-void cursor_on();      	 					// alias for cursor()
-void cursor_off();      					// alias for noCursor()
-void setBacklight(uint8_t new_val);				// alias for backlight() and nobacklight()
+void on();                          // alias for display()
+void off();                         // alias for noDisplay()
+void blink_on();						        // alias for blink()
+void blink_off();       					  // alias for noBlink()
+void cursor_on();      	 					  // alias for cursor()
+void cursor_off();      					  // alias for noCursor()
+void setBacklight(uint8_t new_val);	// alias for backlight() and nobacklight()
 void load_custom_character(uint8_t char_num, uint8_t *rows);	// alias for createChar()
 void printstr(const char[]);
 
-////Unsupported API functions (not implemented in this library)
+/* Unsupported API functions (not implemented in this library)
 uint8_t status();
 void setContrast(uint8_t new_val);
 uint8_t keypad();
-void setDelay(int,int);
-void on();
-void off();
-	 
+void setDelay(int, int);
+*/
 
 private:
   void init_priv();
@@ -249,6 +252,7 @@ private:
   void write4bits(uint8_t);
   void expanderWrite(uint8_t);
   void pulseEnable(uint8_t);
+
 /*
   Create custom characters for horizontal graphs
   
@@ -264,6 +268,7 @@ private:
   RETURN:	uint8_t - number of created custom characters
 */
   uint8_t graphHorizontalChars(uint8_t rowPattern);
+
 /*
   Create custom characters for vertical graphs
   
@@ -279,6 +284,8 @@ private:
   RETURN:	uint8_t - number of created custom characters
 */
   uint8_t graphVerticalChars(uint8_t rowPattern);
+
+  // Private attributes
   uint8_t _Addr;
   uint8_t _displayfunction;
   uint8_t _displaycontrol;

@@ -17,8 +17,8 @@
   CREDENTIALS:
   Author: Libor Gabaj
   GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
-  Version: 2.5.0
-  Updated: 04.03.2015
+  Version: 2.6.0
+  Updated: 23.02.2016
  */
 #include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
@@ -45,11 +45,11 @@
 // can't assume that its in that state when a sketch starts (and the
 // LiquidCrystal constructor is called).
 
-LiquidCrystal_I2C::LiquidCrystal_I2C(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows)
+LiquidCrystal_I2C::LiquidCrystal_I2C(uint8_t addr, uint8_t cols, uint8_t rows)
 {
-  _Addr = lcd_Addr;
-  _cols = lcd_cols;
-  _rows = lcd_rows;
+  _Addr = addr;
+  _cols = cols;
+  _rows = rows;
   _backlightval = LCD_NOBACKLIGHT;
 }
 
@@ -64,27 +64,27 @@ void LiquidCrystal_I2C::init_priv()
 	begin(_cols, _rows);  
 }
 
-void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
+void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t charsize) {
 	if (lines > 1) {
 		_displayfunction |= LCD_2LINE;
 	}
 	_numlines = lines;
 
 	// for some 1 line displays you can select a 10 pixel high font
-	if ((dotsize != 0) && (lines == 1)) {
+	if ((charsize != 0) && (lines == 1)) {
 		_displayfunction |= LCD_5x10DOTS;
 	}
 
 	// SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
 	// according to datasheet, we need at least 40ms after power rises above 2.7V
-	// before sending commands. Arduino can turn on way befer 4.5V so we'll wait 50
+	// before sending commands. Arduino can turn on way before 4.5V so we'll wait 50
 	delayMicroseconds(50000); 
   
 	// Now we pull both RS and R/W low to begin commands
 	expanderWrite(_backlightval);	// reset expanderand turn backlight off (Bit 8 =1)
 	delay(1000);
 
-  	//put the LCD into 4 bit mode
+  // put the LCD into 4 bit mode
 	// this is according to the hitachi HD44780 datasheet
 	// figure 24, pg 46
 	
@@ -128,11 +128,11 @@ void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
 /********** high level commands, for the user! */
 void LiquidCrystal_I2C::clear(){
-	command(LCD_CLEARDISPLAY);// clear display, set cursor position to zero
-	delayMicroseconds(2000);  // this command takes a long time!
+	command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+	delayMicroseconds(2000);    // this command takes a long time!
 }
 
-// Clears particular segment of a row
+// Clear particular segment of a row
 void LiquidCrystal_I2C::clear(uint8_t rowStart, uint8_t colStart, uint8_t colCnt) {
   // Maintain input parameters
   rowStart = constrain(rowStart, 0, _rows - 1);
@@ -252,7 +252,7 @@ inline void LiquidCrystal_I2C::command(uint8_t value) {
 
 inline size_t LiquidCrystal_I2C::write(uint8_t value) {
 	send(value, Rs);
-	return 1; // 1 = true
+	return 1; // Number of processed bytes
 }
 
 
@@ -428,6 +428,14 @@ void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t
 
 // Alias functions
 
+void LiquidCrystal_I2C::on(){
+	display();
+}
+
+void LiquidCrystal_I2C::off(){
+	noDisplay();
+}
+
 void LiquidCrystal_I2C::cursor_on(){
 	cursor();
 }
@@ -461,13 +469,3 @@ void LiquidCrystal_I2C::printstr(const char c[]){
 	//it's here so the user sketch doesn't have to be changed 
 	print(c);
 }
-
-// unsupported API functions
-void LiquidCrystal_I2C::off(){}
-void LiquidCrystal_I2C::on(){}
-void LiquidCrystal_I2C::setDelay (int cmdDelay,int charDelay) {}
-uint8_t LiquidCrystal_I2C::status(){return 0;}
-uint8_t LiquidCrystal_I2C::keypad (){return 0;}
-void LiquidCrystal_I2C::setContrast(uint8_t new_val){}
-
-	
