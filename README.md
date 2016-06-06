@@ -164,6 +164,7 @@ None
 
 #### See also
 [LiquidCrystal_I2C()](#LiquidCrystal_I2C)
+
 [init()](#init)
 
 [Back to interface](#interface)
@@ -185,6 +186,7 @@ None
 
 #### See also
 [LiquidCrystal_I2C()](#LiquidCrystal_I2C)
+
 [begin()](#begin)
 
 [Back to interface](#interface)
@@ -242,6 +244,7 @@ None
 
 #### See also
 [LiquidCrystal_I2C()](#LiquidCrystal_I2C)
+
 [clear()](#clear)
 
 [Back to interface](#interface)
@@ -291,8 +294,12 @@ void loop() {}
 
 #### See also
 [write()](#write)
+
 [setCursor()](#setCursor)
+
 [LiquidCrystal_I2C()](#LiquidCrystal_I2C)
+
+[Back to interface](#interface)
 
 
 <a id="write"></a>
@@ -313,6 +320,7 @@ Writes a raw value to the display.
 
 #### See also
 [print()](#print)
+
 [command()](#command)
 
 [Back to interface](#interface)
@@ -674,6 +682,7 @@ characters (5 or 8) will be overwritten according to the type of graph.
 
 #### See also
 [draw_horizontal_graph()](#draw_horizontal_graph)
+
 [draw_vertical_graph()](#draw_vertical_graph)
 
 [Back to interface](#interface)
@@ -730,6 +739,7 @@ None
 
 #### See also
 [init_bargraph()](#init_bargraph)
+
 [draw_vertical_graph()](#draw_vertical_graph)
 
 [Back to interface](#interface)
@@ -783,6 +793,7 @@ None
 
 #### See also
 [init_bargraph()](#init_bargraph)
+
 [draw_horizontal_graph()](#draw_horizontal_graph)
 
 [Back to interface](#interface)
