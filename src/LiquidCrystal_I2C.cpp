@@ -1,30 +1,4 @@
-/*
-  NAME:
-  LiquidCrystal_I2C
-
-  DESCRIPTION:
-  Library for parallel HD44780 compatible LCDs interfaced via a Chinese
-  PCF8574 I2C serial extender. See details in header file.
-
-  LICENSE:
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the MIT License (MIT).
-  
-  CREDITS:
-  Mario H. atmega@xs4all.nl - LiquidCrystal_I2C V2.0
-  Murray R. Van Luyn. vanluynm@iinet.net.au - Mods for Chinese I2C converter board
-    
-  CREDENTIALS:
-  Author: Libor Gabaj
-  GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
-  Version: 2.6.0
-  Updated: 23.02.2016
- */
 #include "LiquidCrystal_I2C.h"
-#include <inttypes.h>
-#include "Wire.h"
-#include "Arduino.h"
-
 
 // When the display powers up, it is configured as follows:
 //
@@ -44,7 +18,6 @@
 // Note, however, that resetting the Arduino doesn't reset the LCD, so we
 // can't assume that its in that state when a sketch starts (and the
 // LiquidCrystal constructor is called).
-
 LiquidCrystal_I2C::LiquidCrystal_I2C(uint8_t addr, uint8_t cols, uint8_t rows)
 {
   _Addr = addr;

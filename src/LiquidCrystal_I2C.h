@@ -27,15 +27,19 @@
   CREDENTIALS:
   Author: Libor Gabaj
   GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
-  Version: 2.6.0
-  Updated: 23.02.2016
  */
-#ifndef LiquidCrystal_I2C_h
-#define LiquidCrystal_I2C_h
+#ifndef LIQUIDCRYSTAL_I2C_H
+#define LIQUIDCRYSTAL_I2C_H
+#define LIQUIDCRYSTAL_I2C_VERSION "LiquidCrystal_I2C 2.6.1"
 
-#include <inttypes.h>
-#include "Print.h" 
-#include <Wire.h>
+#ifdef ARDUINO_ARCH_AVR
+  #if ARDUINO >= 100
+    #include "Arduino.h"
+  #else
+    #include "WProgram.h"
+  #endif
+  #include <inttypes.h>
+#endif
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

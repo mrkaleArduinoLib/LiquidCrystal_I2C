@@ -2,6 +2,7 @@
 # LiquidCrystal_I2C
 It is the reimplementation of the standard Arduino LCD library, configured to work with parallel HD44780 compatible LCDs, and interfaced via a Chinese PCF8574 I2C serial extender.
 
+
 <a id="credit"></a>
 ## Credit
 The reimplementation has been inspired by and credit goes to:
