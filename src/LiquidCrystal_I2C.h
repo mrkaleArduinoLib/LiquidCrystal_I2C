@@ -19,14 +19,14 @@
   LICENSE:
   This program is free software; you can redistribute it and/or modify
   it under the terms of the MIT License (MIT).
+    
+  CREDENTIALS:
+  Author: Libor Gabaj
+  GitHub: https://github.com/mrkaleArduinoLib/LiquidCrystal_I2C.git
   
   CREDITS:
   Mario H. atmega@xs4all.nl - LiquidCrystal_I2C V2.0
   Murray R. Van Luyn. vanluynm@iinet.net.au - Mods for Chinese I2C converter board
-    
-  CREDENTIALS:
-  Author: Libor Gabaj
-  GitHub: https://github.com/mrkale/LiquidCrystal_I2C.git
  */
 #ifndef LIQUIDCRYSTAL_I2C_H
 #define LIQUIDCRYSTAL_I2C_H
